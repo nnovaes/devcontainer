@@ -1,6 +1,6 @@
 {
-  "model": "{{ .model }}",
-  "theme": "{{ .theme }}",
+  "model": "{{ or (index . "model") "claude-sonnet-4-6" }}",
+  "theme": "{{ or (index . "theme") "dark" }}",
   "hooks": {
     "PreToolUse": [
       {

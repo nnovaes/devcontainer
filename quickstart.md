@@ -10,26 +10,29 @@ A Mac-native development environment for platform engineering. Tools and Claude 
 |---|---|
 | Mac with Apple silicon | `apple/container` does not support Intel Macs |
 | macOS 26 (Tahoe) recommended | Older macOS may work but is not officially supported |
-| [Homebrew](https://brew.sh) | Used by `task setup` to install dependencies |
-| [go-task](https://taskfile.dev) | `brew install go-task` — runs all repo commands |
-| `~/.aws` configured on the host | Bind-mounted into the container for SSO and profiles |
-| `~/workspaces` | Clone your repos here; the container mounts it at `/workspaces` |
+| [Homebrew](https://brew.sh) | Installed/updated automatically by `scripts/bootstrap.sh` |
+| [go-task](https://taskfile.dev) | Installed by `scripts/bootstrap.sh`; runs all repo commands |
+| git | Installed via brew by `scripts/bootstrap.sh` |
+| `~/.aws` on the host (optional at first run) | Bind-mounted into the container for SSO and profiles; `task up` creates an empty directory if missing |
+| `~/workspaces` | Clone your repos here; the container mounts it at `/workspaces`; `task up` creates it if missing |
 
 ---
 
 ## One-time machine setup
 
-From this repo:
+From this repo root:
 
 ```sh
-cd ~/projects/devcontainer
+# Installs prerequisites (Homebrew, git, go-task). No tools assumed preinstalled.
+./scripts/bootstrap.sh
 
-mkdir -p ~/workspaces
-
+# Now that go-task is available, finish setup.
 task setup
 ```
 
-`task setup` installs chezmoi (if missing), installs `apple/container` from the pinned GitHub release (admin password required), and starts the container service.
+`scripts/bootstrap.sh` is idempotent and assumes nothing is preinstalled — it installs/updates Homebrew, then installs `git` and `go-task` via brew. Run it first because `task setup` itself requires `go-task`.
+
+`task setup` then installs chezmoi (if missing), installs `apple/container` from the pinned GitHub release (admin password required), and starts the container service. It also re-runs the bootstrap step (via `task bootstrap`) so prerequisites stay current.
 
 ---
 
@@ -128,7 +131,7 @@ task up PERSONA=devops
 
 ## AWS credentials
 
-`~/.aws` from your Mac is bind-mounted into the container.
+`~/.aws` from your Mac is bind-mounted into the container. If you have not configured AWS yet, `task up` creates an empty `~/.aws` so the container can start; add profiles or run `aws configure` / `aws sso login` before using AWS CLI commands.
 
 ```sh
 aws sts get-caller-identity
@@ -146,7 +149,7 @@ Default Claude Code AWS env vars are set in `dotfiles/dot_claude/settings.json.t
 **Rebuild required** (`task build PERSONA=<name>`):
 
 - Changes to `containers/Dockerfile`
-- Changes to `containers/personas/*.mise.toml` (tool version bumps)
+- Changes to `containers/base.mise.toml` or `containers/personas/*.mise.toml` (tool version bumps)
 
 **Rebuild not required:**
 
@@ -165,13 +168,15 @@ task up PERSONA=devops
 
 ## Changing tool versions
 
-Persona tool lists live in `containers/personas/<persona>.mise.toml`. Each file is self-contained (base tools + persona-specific tools). `containers/.mise.toml` is the reference template for new personas.
+Base tools are defined in `containers/base.mise.toml`. Persona-specific tools live in `containers/personas/<persona>.mise.toml`. mise merges both at image build time via `/etc/mise/config.toml` and `/etc/mise/conf.d/<persona>.toml`.
 
 ```toml
 # containers/personas/devops.mise.toml
 [tools]
 terraform = "1.9.8"   # was "latest"
 ```
+
+To change a base tool version, edit `containers/base.mise.toml` instead (rebuilds all personas).
 
 Then rebuild:
 
@@ -185,7 +190,7 @@ To pin a tool for a single repo without rebuilding the image, add a `.mise.toml`
 
 ## Adding a new persona
 
-1. Copy `containers/.mise.toml` to `containers/personas/<name>.mise.toml` and add persona-specific tools.
+1. Create `containers/personas/<name>.mise.toml` with persona-specific tools only.
 2. Add a `FROM base AS <name>` stage to `containers/Dockerfile` (follow the existing devops pattern).
 3. Build and start: `task build PERSONA=<name>` then `task up PERSONA=<name>`.
 
@@ -207,11 +212,15 @@ Claude Code session history is ephemeral and resets when you recreate the contai
 
 ## Troubleshooting
 
+**`task: command not found`** — go-task isn't installed yet. Run `./scripts/bootstrap.sh` to install prerequisites, then `task setup`.
+
 **`container: command not found`** — Run `task setup`.
 
 **Build fails on first run** — First persona builds can take 5–15 minutes while mise downloads tools. Subsequent builds use cache and are faster.
 
 **chezmoi prompts every restart** — Check that `~/.local/share/devcontainer-chezmoi/` exists and is writable. `task up` creates it automatically.
+
+**`Error: path '.../.aws' does not exist`** — Older versions required `~/.aws` before `task up`. Update to the latest `Taskfile.yml` (which creates `~/.aws`, `~/workspaces`, and the chezmoi state dir automatically), or run `mkdir -p ~/.aws ~/workspaces` and retry.
 
 **Wrong persona tools** — You may have started the wrong image. Run `task switch PERSONA=<name>` to stop other containers and start the correct one.
 

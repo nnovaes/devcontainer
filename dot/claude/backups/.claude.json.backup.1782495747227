@@ -1,0 +1,56 @@
+{
+  "firstStartTime": "2026-06-26T17:39:26.229Z",
+  "machineID": "1287026ba36256a4943e89b40f4876a8cc459ad7bec000367bd65680ba049b54",
+  "opusProMigrationComplete": true,
+  "opusProMigrationTimestamp": 1782495566271,
+  "sonnet1m45MigrationComplete": true,
+  "seenNotifications": {},
+  "migrationVersion": 13,
+  "userID": "d845dd3c1e14e7edbdb9c3a55f8cf6ae21c9ceda65ead45576ccd73bb423e4c4",
+  "cachedChromeExtensionInstalled": true,
+  "changelogLastFetched": 1782495566744,
+  "oauthAccount": {
+    "accountUuid": "d63121a0-920d-44ab-a91b-4fc52cb123c5",
+    "emailAddress": "norman.novaes@gmail.com",
+    "organizationUuid": "1b42317f-9e55-4927-907d-5abdc2687582",
+    "hasExtraUsageEnabled": true,
+    "billingType": "stripe_subscription",
+    "accountCreatedAt": "2025-09-10T12:57:23.585653Z",
+    "subscriptionCreatedAt": "2025-09-10T13:03:26.742324Z",
+    "ccOnboardingFlags": {},
+    "claudeCodeTrialEndsAt": null,
+    "claudeCodeTrialDurationDays": null,
+    "seatTier": null,
+    "displayName": "you",
+    "profileFetchedAt": 1782495583297,
+    "organizationRole": "admin",
+    "workspaceRole": null,
+    "organizationName": "norman.novaes@gmail.com's Organization",
+    "organizationType": "claude_pro",
+    "organizationRateLimitTier": "default_claude_ai",
+    "userRateLimitTier": null
+  },
+  "claudeCodeFirstTokenDate": "2026-02-02T06:00:22.500799Z",
+  "clientDataCacheSlots": {
+    "bi1-ac6cecf67aed2d49": {
+      "data": {
+        "cedar_lagoon": {
+          "": true
+        },
+        "cedar_basin": "2026-08-31"
+      },
+      "at": 1782495584525
+    }
+  },
+  "additionalModelOptionsCache": [
+    {
+      "value": "claude-fable-5[1m]",
+      "label": "Fable (disabled)",
+      "description": "Claude Fable 5 is currently unavailable. Learn more: https://www.anthropic.com/news/fable-mythos-access",
+      "disabled": true
+    }
+  ],
+  "additionalModelCostsCache": {},
+  "modelAccessCache": [],
+  "autoCompactWindowsCache": null
+}

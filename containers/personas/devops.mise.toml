@@ -1,32 +1,5 @@
 [tools]
-# ── Base tools (shared across all personas) ──────────────────────────────────
-starship   = "latest"
-atuin      = "latest"
-zoxide     = "latest"
-direnv     = "latest"
-fzf        = "latest"
-eza        = "latest"
-bat        = "latest"
-ripgrep    = "latest"
-fd         = "latest"
-btop       = "latest"
-duf        = "latest"
-glow       = "latest"
-delta      = "latest"
-dust       = "latest"
-lazygit    = "latest"
-github-cli = "latest"
-jq         = "latest"
-yq         = "latest"
-yamlfmt    = "latest"
-yamllint   = "latest"
-task       = "latest"
-pre-commit = "latest"
-gitleaks   = "latest"
-trufflehog = "latest"
-step       = "latest"
-
-# ── DevOps tools ─────────────────────────────────────────────────────────────
+# DevOps tools (merged with base.mise.toml via /etc/mise/conf.d/)
 terraform      = "latest"
 awscli         = "latest"
 opentofu       = "latest"

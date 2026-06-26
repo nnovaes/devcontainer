@@ -1,6 +1,7 @@
 # Base tools shared across all personas.
-# This file is the reference template when adding a new persona.
-# Each persona's .mise.toml must include these plus its own additions.
+# Copied to /etc/mise/config.toml in the base image stage.
+# Persona-specific tools live in containers/personas/<name>.mise.toml
+# and are merged via /etc/mise/conf.d/ at build time.
 [tools]
 # Prompt & shell enhancers
 starship   = "latest"

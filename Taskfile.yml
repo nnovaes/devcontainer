@@ -11,14 +11,15 @@ vars:
   CHEZMOI_STATE_DIR: '{{.HOME}}/.local/share/devcontainer-chezmoi'
 
 tasks:
-  setup:
-    desc: "One-command machine bootstrap: install apple/container + chezmoi, start the container service"
+  bootstrap:
+    desc: "Idempotently install Homebrew (up-to-date), git, and go-task. Run scripts/bootstrap.sh directly on a fresh Mac."
     cmds:
-      - |
-        if ! command -v brew >/dev/null 2>&1; then
-          echo "Homebrew is required. Install it from https://brew.sh and re-run 'task setup'." >&2
-          exit 1
-        fi
+      - bash scripts/bootstrap.sh
+
+  setup:
+    desc: "One-command machine bootstrap: install prerequisites + apple/container + chezmoi, start the container service"
+    cmds:
+      - task: bootstrap
       - command -v chezmoi >/dev/null 2>&1 || brew install chezmoi
       - |
         if command -v container >/dev/null 2>&1; then
@@ -41,16 +42,21 @@ tasks:
   up:
     desc: "Start a persona container. Usage: task up PERSONA=devops"
     cmds:
-      - mkdir -p {{.CHEZMOI_STATE_DIR}}
+      - mkdir -p {{.CHEZMOI_STATE_DIR}} {{.HOME}}/workspaces {{.HOME}}/.aws
       - |
-        container run \
-          --name {{.CONTAINER_NAME}} \
-          --detach \
-          -v {{.HOME}}/workspaces:/workspaces \
-          -v {{.HOME}}/.aws:/home/vscode/.aws \
-          -v {{.PWD}}/dotfiles:/chezmoi-source:ro \
-          -v {{.CHEZMOI_STATE_DIR}}:/home/vscode/.config/chezmoi \
-          {{.IMAGE}} sleep infinity
+        if container inspect {{.CONTAINER_NAME}} >/dev/null 2>&1; then
+          echo "Container {{.CONTAINER_NAME}} already exists; ensuring it is running."
+          container start {{.CONTAINER_NAME}} >/dev/null 2>&1 || true
+        else
+          container run \
+            --name {{.CONTAINER_NAME}} \
+            --detach \
+            -v {{.HOME}}/workspaces:/workspaces \
+            -v {{.HOME}}/.aws:/home/vscode/.aws \
+            -v {{.PWD}}/dotfiles:/chezmoi-source:ro \
+            -v {{.CHEZMOI_STATE_DIR}}:/home/vscode/.config/chezmoi \
+            {{.IMAGE}} sleep infinity
+        fi
       - container exec {{.CONTAINER_NAME}} chezmoi apply --source /chezmoi-source
 
   switch:
@@ -60,6 +66,22 @@ tasks:
         for persona in devops frontend qa; do
           container stop devcontainer-$persona 2>/dev/null || true
         done
+      - task: up
+        vars:
+          PERSONA: '{{.PERSONA}}'
+
+  down:
+    desc: "Stop and remove a persona container. Usage: task down PERSONA=devops"
+    cmds:
+      - container stop {{.CONTAINER_NAME}} 2>/dev/null || true
+      - container rm {{.CONTAINER_NAME}} 2>/dev/null || true
+
+  restart:
+    desc: "Restart a persona container (down then up). Usage: task restart PERSONA=devops"
+    cmds:
+      - task: down
+        vars:
+          PERSONA: '{{.PERSONA}}'
       - task: up
         vars:
           PERSONA: '{{.PERSONA}}'
