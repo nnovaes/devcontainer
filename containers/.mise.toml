@@ -1,0 +1,40 @@
+# Base tools shared across all personas.
+# This file is the reference template when adding a new persona.
+# Each persona's .mise.toml must include these plus its own additions.
+[tools]
+# Prompt & shell enhancers
+starship   = "latest"
+atuin      = "latest"
+zoxide     = "latest"
+direnv     = "latest"
+fzf        = "latest"
+
+# Modern CLI replacements
+eza        = "latest"
+bat        = "latest"
+ripgrep    = "latest"
+fd         = "latest"
+btop       = "latest"
+duf        = "latest"
+glow       = "latest"
+delta      = "latest"
+dust       = "latest"
+
+# Git & GitHub
+lazygit    = "latest"
+github-cli = "latest"
+
+# Data & Query
+jq       = "latest"
+yq       = "latest"
+yamlfmt  = "latest"
+yamllint = "latest"
+
+# Developer Productivity
+task       = "latest"
+pre-commit = "latest"
+
+# Security
+gitleaks   = "latest"
+trufflehog = "latest"
+step       = "latest"

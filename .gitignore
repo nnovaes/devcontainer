@@ -1,0 +1,38 @@
+# OS
+.DS_Store
+**/.DS_Store
+
+# chezmoi state is stored at ~/.local/share/devcontainer-chezmoi/ on the Mac — outside this repo
+# No entries needed here for it.
+
+# Plans, memories, tasks — ephemeral Claude Code session data (lives inside container)
+dot/claude/plans/
+dot/claude/memory/
+# Personal Claude memory notes — kept on disk, never committed (mirror of dot/claude/memory rule)
+dotfiles/dot_claude/memory/*
+!dotfiles/dot_claude/memory/.gitkeep
+dot/claude/tasks/
+dot/claude/sessions/
+dot/claude/projects/
+dot/claude/cache/
+dot/claude/temp/
+dot/claude/.runtime/
+dot/claude/settings.json
+dot/claude/settings.local.json
+dot/claude/keybindings.json
+dot/claude/.credentials.json
+dot/claude/.claude.json
+dot/claude/history.jsonl
+dot/claude/stats-cache.json
+dot/claude/mcp-needs-auth-cache.json
+dot/claude/policy-limits.json
+dot/claude/paste-cache/
+dot/claude/image-cache/
+dot/claude/shell-snapshots/
+dot/claude/feedback-bundles/
+dot/claude/telemetry/
+dot/claude/file-history/
+CLAUDE.local.md
+
+# Superpowers plans/notes — local working docs, not part of the repo
+docs/superpowers/

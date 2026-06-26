@@ -1,0 +1,75 @@
+version: "3"
+
+vars:
+  PERSONA: '{{default "devops" .PERSONA}}'
+  CONTAINER_NAME: 'devcontainer-{{.PERSONA}}'
+  IMAGE: 'devcontainer:{{.PERSONA}}'
+  # apple/container release to install via `task setup`. Bump to upgrade.
+  CONTAINER_VERSION: "1.0.0"
+  # Chezmoi state dir on Mac — bind-mounted as ~/.config/chezmoi/ in container
+  # Persists persona/model/theme prompts across container restarts.
+  CHEZMOI_STATE_DIR: '{{.HOME}}/.local/share/devcontainer-chezmoi'
+
+tasks:
+  setup:
+    desc: "One-command machine bootstrap: install apple/container + chezmoi, start the container service"
+    cmds:
+      - |
+        if ! command -v brew >/dev/null 2>&1; then
+          echo "Homebrew is required. Install it from https://brew.sh and re-run 'task setup'." >&2
+          exit 1
+        fi
+      - command -v chezmoi >/dev/null 2>&1 || brew install chezmoi
+      - |
+        if command -v container >/dev/null 2>&1; then
+          echo "apple/container already installed: $(container --version)"
+        else
+          echo "Installing apple/container {{.CONTAINER_VERSION}} (signed pkg, requires admin password)..."
+          pkg="$(mktemp -d)/container.pkg"
+          curl -fsSL -o "$pkg" \
+            "https://github.com/apple/container/releases/download/{{.CONTAINER_VERSION}}/container-{{.CONTAINER_VERSION}}-installer-signed.pkg"
+          sudo installer -pkg "$pkg" -target /
+        fi
+      - container system start
+      - 'echo "Setup complete. Next: task build PERSONA=devops && task up PERSONA=devops"'
+
+  build:
+    desc: "Build a persona image. Usage: task build PERSONA=devops"
+    cmds:
+      - container build --target {{.PERSONA}} -t {{.IMAGE}} containers/
+
+  up:
+    desc: "Start a persona container. Usage: task up PERSONA=devops"
+    cmds:
+      - mkdir -p {{.CHEZMOI_STATE_DIR}}
+      - |
+        container run \
+          --name {{.CONTAINER_NAME}} \
+          --detach \
+          -v {{.HOME}}/workspaces:/workspaces \
+          -v {{.HOME}}/.aws:/home/vscode/.aws \
+          -v {{.PWD}}/dotfiles:/chezmoi-source:ro \
+          -v {{.CHEZMOI_STATE_DIR}}:/home/vscode/.config/chezmoi \
+          {{.IMAGE}} sleep infinity
+      - container exec {{.CONTAINER_NAME}} chezmoi apply --source /chezmoi-source
+
+  switch:
+    desc: "Stop all running persona containers and start a new one. Usage: task switch PERSONA=frontend"
+    cmds:
+      - |
+        for persona in devops frontend qa; do
+          container stop devcontainer-$persona 2>/dev/null || true
+        done
+      - task: up
+        vars:
+          PERSONA: '{{.PERSONA}}'
+
+  attach:
+    desc: "Open a zsh shell in the running container"
+    cmds:
+      - container exec -it {{.CONTAINER_NAME}} zsh
+
+  list-personas:
+    desc: "List available personas"
+    cmds:
+      - ls containers/personas/*.mise.toml | xargs -I{} basename {} .mise.toml

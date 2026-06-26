@@ -1,0 +1,12 @@
+#!/bin/bash
+# chezmoi run_once_ scripts execute once per unique script content.
+# Editing this file (e.g. adding a marketplace or plugin) triggers a re-run.
+set -euo pipefail
+
+# Add team marketplace — uncomment and replace with your org's config repo:
+# claude marketplace add my-org-config github:my-org/claude-config
+
+# Install plugins from the marketplace — uncomment and replace with real plugin IDs:
+# claude plugin add my-plugin@my-org-config
+
+echo "Claude plugin setup complete."

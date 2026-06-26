@@ -1,0 +1,71 @@
+# --- Completion ---
+autoload -Uz compinit && compinit
+
+# --- PATH ---
+export PATH="${HOME}/.local/bin:${PATH}"
+
+# --- History ---
+export HISTFILE="${HOME}/.zsh_history"
+export HISTSIZE=200000
+export SAVEHIST=200000
+setopt HIST_IGNORE_DUPS
+setopt HIST_IGNORE_SPACE
+setopt HIST_VERIFY
+setopt SHARE_HISTORY
+
+# --- Zsh plugins (installed system-wide by Dockerfile) ---
+source /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
+# --- Tool activations ---
+eval "$(/usr/local/bin/mise activate zsh)"
+eval "$(fzf --zsh)"
+eval "$(atuin init zsh)"
+eval "$(zoxide init zsh)"
+eval "$(direnv hook zsh)"
+command -v thefuck &>/dev/null && eval "$(thefuck --alias)"
+
+# --- Prompt ---
+eval "$(starship init zsh)"
+
+# --- Modern CLI aliases ---
+alias ls="eza --group-directories-first --git"
+alias ll="ls -lh"
+alias la="ls -lha"
+alias cat="bat"
+alias grep="rg"
+alias find="fd"
+alias mdview="glow"
+alias df="duf"
+alias top="btop"
+
+# --- Git ---
+alias gs="git status"
+alias gl="git log --oneline --graph --decorate"
+alias lg="lazygit"
+
+# --- GitHub env (only if gh CLI is available) ---
+_gh_load_github_env() {
+  if ! command -v gh &>/dev/null; then return; fi
+  local gh_user
+  gh_user=$(gh api user --jq .login 2>/dev/null) || return
+  export GITHUB_USER="${gh_user}"
+  export GITHUB_ACTOR="${gh_user}"
+  local gh_token
+  gh_token=$(gh auth token 2>/dev/null) || return
+  export GITHUB_TOKEN="${gh_token}"
+  export GH_TOKEN="${gh_token}"
+}
+_gh_load_github_env
+
+# --- Socket Firewall — transparently wrap package managers ---
+alias npm="sfw npm"
+alias yarn="sfw yarn"
+alias pnpm="sfw pnpm"
+alias pip="sfw pip"
+alias pip3="sfw pip3"
+alias uv="sfw uv"
+alias cargo="sfw cargo"
+
+# --- Persona shell extensions (add dotfiles/dot_zshrc_persona.tmpl to activate) ---
+[[ -f "${HOME}/.zshrc.persona" ]] && source "${HOME}/.zshrc.persona"

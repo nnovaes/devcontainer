@@ -1,0 +1,26 @@
+add_newline = true
+
+[character]
+success_symbol = "[➜](bold)"
+error_symbol = "[➜](bold red)"
+
+[git_branch]
+symbol = " "
+truncation_length = 32
+
+[git_status]
+conflicted = "✖ "
+ahead = "⇡${count} "
+behind = "⇣${count} "
+staged = "+${count} "
+deleted = "✂ ${count} "
+modified = "~${count} "
+untracked = "?${count} "
+
+[aws]
+symbol = "☁️  "
+format = "[$symbol$profile]($style) "
+
+[kubernetes]
+symbol = "⎈ "
+disabled = false

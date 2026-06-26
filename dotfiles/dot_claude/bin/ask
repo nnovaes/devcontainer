@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# Invoke a saved prompt through the current AI tool.
+# Usage: bin/ask <prompt-path-without-extension>
+set -euo pipefail
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+PROMPT_FILE="${REPO_ROOT}/prompts/${1:-}.md"
+[[ -f "${PROMPT_FILE}" ]] || { echo "Error: prompt not found: ${PROMPT_FILE}" >&2; exit 1; }
+
+case "${AI_TOOL:-claude}" in
+    claude) claude -p "$(cat "${PROMPT_FILE}")" ;;
+    codex)  codex  exec "$(cat "${PROMPT_FILE}")" ;;
+    gemini) gemini -p "$(cat "${PROMPT_FILE}")" ;;
+    *)      echo "Error: unknown AI_TOOL=${AI_TOOL}" >&2; exit 1 ;;
+esac

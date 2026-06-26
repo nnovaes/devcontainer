@@ -1,0 +1,22 @@
+{
+  "model": "{{ .model }}",
+  "theme": "{{ .theme }}",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "dcg"
+          }
+        ]
+      }
+    ]
+  },
+  "skipDangerousModePermissionPrompt": true,
+  "env": {
+    "AWS_REGION": "us-east-1",
+    "AWS_PROFILE": "hc-devopstooling-prod"
+  }
+}
